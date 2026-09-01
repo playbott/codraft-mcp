@@ -1,0 +1,64 @@
+name: Test & Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Test & Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check Go Vet
+        run: go vet ./...
+
+      - name: Run Go Unit Tests
+        run: go test -v ./...
+
+      - name: Validate Locale JSON files
+        run: |
+          node -e "['ui/locales/en.json','ui/locales/ru.json','ui/locales/tm.json'].forEach(f=>{try{JSON.parse(require('fs').readFileSync(f,'utf8'));console.log('OK',f);}catch(e){console.error('FAIL',f,e.message);process.exit(1);}})"
+
+      - name: Check for Forbidden Cyrillic in Codebase
+        run: |
+          node -e "const fs=require('fs'),path=require('path');function check(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){if(e.name.startsWith('.')||e.name==='node_modules'||e.name==='!Backup'||e.name==='plans')continue;const p=path.join(d,e.name);if(e.isDirectory()){check(p);}else if(/\.(go|js|html|css)$/.test(e.name)){const c=fs.readFileSync(p,'utf8');if(/[\u0400-\u04FF]/.test(c)){console.error('FAIL: Cyrillic text found in '+p);process.exit(1);}}}}check('.');console.log('OK: Codebase is 100% English.');"
+
+      - name: Check JavaScript Syntax
+        run: |
+          node --check ui/js/state.js
+          node --check ui/js/api.js
+          node --check ui/js/ws.js
+          node --check ui/js/i18n.js
+          node --check ui/js/toast.js
+          node --check ui/js/components/modal.js
+          node --check ui/js/components/issue.js
+          node --check ui/js/components/comment.js
+          node --check ui/js/components/card.js
+          node --check ui/js/views/plans.js
+          node --check ui/js/views/plan-detail.js
+          node --check ui/js/main.js
+          node --check vscode-extension/extension.js
+
+      - name: Build Binary
+        run: go build -v ./...
