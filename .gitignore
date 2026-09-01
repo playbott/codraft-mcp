@@ -1,0 +1,38 @@
+# Executables & Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+tracker.exe
+task-tracker-mcp.exe
+codraft.exe
+
+# Database files & SQLite WAL
+*.db
+*.db-wal
+*.db-shm
+
+# Log files
+*.log
+stderr.log
+stdout.log
+
+# Dynamic Port & Lock files
+tracker.port
+.vscode/tracker.port
+.codraft/
+.tracker.lock
+
+# Backup & Temporary files
+!Backup/
+*.tmp
+*.bak
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+.kilo/
+.antigravity/
+.cursor/
+.windsurf/

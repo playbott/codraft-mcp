@@ -1,0 +1,22 @@
+{
+  "name": "codraft-ui-opener",
+  "displayName": "CoDraft UI Opener",
+  "publisher": "codraft",
+  "description": "Automatically opens the Simple Browser when CoDraft MCP starts.",
+  "version": "1.7.0",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*",
+    "onStartupFinished",
+    "workspaceContains:.codraft/tracker.port",
+    "workspaceContains:.vscode/tracker.port",
+    "workspaceContains:tracker.port"
+  ],
+  "main": "./extension.js",
+  "contributes": {}
+}
